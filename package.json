@@ -20,16 +20,17 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "storybook": "start-storybook -p 6006 -s public",
+    "storybook": "storybook dev -p 6006",
     "clean": "rimraf dist",
     "compile": "npm run clean && cross-env NODE_ENV=production babel src --out-dir dist --copy-files --ignore __tests__,spec.js,test.js,stories.js,__snapshots__",
     "predeploy": "npm run build-storybook",
     "deploy-storybook": "gh-pages -d storybook-static",
-    "build-storybook": "build-storybook"
+    "build-storybook": "storybook build"
   },
   "eslintConfig": {
     "extends": [
-      "react-app"
+      "react-app",
+      "plugin:storybook/recommended"
     ],
     "overrides": [
       {
@@ -57,19 +58,30 @@
   "resolutions": {
     "styled-components": "^5"
   },
-  "dependencies": {
+  "devDependencies": {
+    "@babel/cli": "^7.23.4",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/preset-env": "^7.23.7",
+    "@babel/preset-react": "^7.23.3",
+    "@storybook/addon-essentials": "^7.6.7",
+    "@storybook/addon-interactions": "^7.6.7",
+    "@storybook/addon-links": "^7.6.7",
+    "@storybook/addon-onboarding": "^1.0.10",
+    "@storybook/blocks": "^7.6.7",
+    "@storybook/react": "^7.6.7",
+    "@storybook/react-webpack5": "^7.6.7",
+    "@storybook/test": "^7.6.7",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.7",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
-    "typescript": "^4.9.5"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.23.4",
-    "@babel/preset-env": "^7.23.7",
-    "@babel/preset-react": "^7.23.3",
     "cross-env": "^7.0.3",
-    "gh-pages": "^6.1.1"
+    "eslint-plugin-storybook": "^0.6.15",
+    "gh-pages": "^6.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "storybook": "^7.6.7",
+    "typescript": "^4.9.5"
   },
   "peerDependencies": {
     "react": "^18.2.0",

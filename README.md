@@ -1,2 +1,288 @@
-# react-progress-stepper-ts
-React Progress Stepper written in typescript
+<p align="center">
+<br/>
+<img src="https://i.ibb.co/dKD1dYq/samir-repo.png">
+<br/>
+</p>
+
+# <p align="center">React Progress Stepper</p>
+### <p align="center">Minimal and beautiful stepper for React.</p>
+<p align="center">
+<a href="https://aloknecessary.github.io/react-progress-stepper-ts"><img src="https://img.shields.io/badge/LIVE DEMO-23c275?style=flat"></a>
+<img src="https://img.shields.io/badge/Open%20Source-🤍-23c275">
+<img src="https://img.shields.io/github/stars/aloknecessary/react-progress-stepper-ts?color=23c275&label=Stars">
+<img src="https://img.shields.io/npm/dw/react-progress-stepper-ts?color=23c275&label=Downloads">
+<img src="https://img.shields.io/github/license/aloknecessary/react-progress-stepper-ts?color=23c275&label=License">
+</p>
+
+<p align="center">
+<br/>
+<img src="./docs/stepper.gif" alt="Stepper gif">
+<img src="./docs/stepper_dark.gif" alt="Stepper dark gif">
+<br/><br/>
+</p>
+
+## ⚙️ Installation
+
+```shell
+$ npm i react-progress-stepper-ts
+$ yarn add react-progress-stepper-ts
+```
+
+<br/><br/>
+
+## ✔️ Usage
+
+```js
+import React from 'react';
+import {
+  Stepper,
+  Step,
+  useStepper,
+} from "react-progress-stepper-ts";
+
+export default const App = () => {
+  const { step, incrementStep, decrementStep } = useStepper(0, 3);
+
+  return (
+    <>
+      <Stepper step={step}>
+        <Step></Step>
+        <Step></Step>
+        <Step></Step>
+      </Stepper>
+      <button onClick={decrementStep}>Prev</button>
+      <button onClick={incrementStep}>Next</button>
+    </>
+  )
+}
+```
+
+## 🔎 Modules
+
+### 🔹 Stepper
+
+| Property   | Type    | Description                             |
+| ---------- | ------- | --------------------------------------- |
+| `step`     | Integer | State to track the current step         |
+| `vertical` | Boolean | Toggle vertical view                    |
+| `dark`     | Boolean | Toggle dark mode                        |
+| `numbered` | Boolean | Toggle if each step is numbered or not  |
+| `theme`    | Object  | Customize the appearance of the stepper |
+
+### 🔹 Step
+
+| Property        | Type     | Description                  |
+| --------------- | -------- | ---------------------------- |
+| `customContent` | Function | Override step circle content |
+
+### 🔹 Content
+
+You can customize the content of each step, as the example below:
+
+<img src="./docs/stepper_content.gif" alt="Stepper with content gif">    
+  
+```js
+import React from 'react';
+import {
+  Stepper,
+  Step,
+  useStepper,
+  StepNumber,
+  StepTitle,
+  StepStatus,
+  StepDescription,
+} from "react-progress-stepper-ts";
+
+export default const App = () => {
+const { step, incrementStep, decrementStep } = useStepper(0, 3);
+
+return (
+    <>
+      <Stepper step={step}>
+        <Step>
+          <StepNumber />
+          <StepTitle>Title</StepTitle>
+          <StepStatus />
+          <StepDescription>Description</StepDescription>
+        </Step>
+        <Step>
+          <StepNumber />
+          <StepTitle>Title</StepTitle>
+          <StepStatus />
+          <StepDescription>Description</StepDescription>
+        </Step>
+        <Step>
+          <StepNumber />
+          <StepTitle>Title</StepTitle>
+          <StepStatus />
+          <StepDescription>Description</StepDescription>
+        </Step>
+      </Stepper>
+    </>
+  )
+}
+
+````
+
+#### StepNumber
+
+| Property | Type   | Description    |
+| -------- | ------ | -------------- |
+| `text`   | String | Customize text |
+
+#### StepTitle
+StepTitle comes with no property, you can pass text as children.
+
+#### StepStatus
+
+| Property        | Type   | Description    |
+| --------------- | ------ | -------------- |
+| `textProgress`  | String | Customize text |
+| `textCompleted` | String | Customize text |
+| `textPending`   | String | Customize text |
+
+#### StepDescription
+StepDescription comes with no property, you can pass text as children.
+
+### 🔹 useStepper
+
+Hook to handle the state of stepper easily, you could write your own logic to handle the state.
+
+To work properly you need to provide two arguments to useStepper:
+
+- **Number of current step**: starts from 0;
+- **Number of total steps**.
+
+useStepper provides several utilities:
+
+- **step**: state to track the current step;
+- **incrementStep**: function to increment state by one;
+- **decrementStep**: function to decrement state by one;
+- **goToStep**: function to set state to a specific step number.
+
+## 🎨 Theming and Style Overrides
+
+You can customize the appearance of the stepper in two ways:
+
+### 🔹 Using the **theme** object:  
+
+```js
+{
+  light: {
+    step: {
+      pending: {
+        background: "#ededed",
+        color: "#a1a3a7",
+      },
+      progress: {
+        background: "#3c3fed",
+        color: "#ffffff",
+      },
+      completed: {
+        background: "#23c275",
+        color: "#ffffff",
+      },
+    },
+    content: {
+      pending: {
+        stepNumber: { color: "#a1a3a7" },
+        title: { color: "#a1a3a7" },
+        status: { background: "#f2f2f2", color: "#a1a3a7" },
+        description: { color: "#a1a3a7" },
+      },
+      progress: {
+        stepNumber: { color: "#131b26" },
+        title: { color: "#131b26" },
+        status: { background: "#e7e9fd", color: "#3c3fed" },
+        description: { color: "#131b26" },
+      },
+      completed: {
+        stepNumber: { color: "#131b26" },
+        title: { color: "#131b26" },
+        status: { background: "#e9faf2", color: "#23c275" },
+        description: { color: "#131b26" },
+      },
+    },
+    progressBar: {
+      pending: {
+        background: "#ededed",
+      },
+      progress: {
+        background: "#e7e9fd",
+        fill: "#3c3fed",
+      },
+      completed: {
+        background: "#e9faf2",
+        fill: "#23c275",
+      },
+    },
+  },
+  dark: {
+    step: {
+      pending: {
+        background: "#1a1a1a",
+        color: "#767676",
+      },
+      progress: {
+        background: "#19b6fe",
+        color: "#ffffff",
+      },
+      completed: {
+        background: "#23c275",
+        color: "#ffffff",
+      },
+    },
+    content: {
+      pending: {
+        stepNumber: { color: "#767676" },
+        title: { color: "#767676" },
+        status: { background: "#1a1a1a", color: "#767676" },
+        description: { color: "#767676" },
+      },
+      progress: {
+        stepNumber: { color: "#ece4d9" },
+        title: { color: "#ece4d9" },
+        status: { background: "#08374c", color: "#19b6fe" },
+        description: { color: "#ece4d9" },
+      },
+      completed: {
+        stepNumber: { color: "#ece4d9" },
+        title: { color: "#ece4d9" },
+        status: { background: "#0b3a23", color: "#23c275" },
+        description: { color: "#ece4d9" },
+      },
+    },
+    progressBar: {
+      pending: {
+        background: "#1a1a1a",
+      },
+      progress: {
+        background: "#08374c",
+        fill: "#19b6fe",
+      },
+      completed: {
+        background: "#0b3a23",
+        fill: "#23c275",
+      },
+    },
+  },
+}
+````
+
+### 🔹 Overriding the **CSS** using class names, example:  
+
+```css
+.step {
+  width: 3em;
+  height: 3em;
+}
+
+.step.progress {
+  background: #6ab04c;
+}
+```
+
+## ✏️ License and Credits
+
+**React Progress Stepper** is released under the *MIT* license, feel free to use it, share and modify.
+

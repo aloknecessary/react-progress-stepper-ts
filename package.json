@@ -2,7 +2,7 @@
   "homepage": "https://github.com/aloknecessary/react-progress-stepper-ts.git",
   "name": "react-progress-stepper-ts",
   "main": "dist/index.js",
-  "version": "0.2.5",
+  "version": "1.0.0",
   "private": false,
   "files": [
     "dist",

@@ -1,14 +1,14 @@
 import React from "react";
 
 import {
-  Stepper,
   Step,
-  useStepper,
-  StepNumber,
-  StepTitle,
-  StepStatus,
   StepDescription,
-} from "./ProgressStepper";
+  StepNumber,
+  StepStatus,
+  StepTitle,
+  Stepper,
+  useStepper,
+} from "../components/ProgressStepper";
 
 export default {
   title: "Examples",

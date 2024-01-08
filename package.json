@@ -18,6 +18,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "copy-font": "shx cp -r src\\assets\\fonts\\montserrat.ttf  dist\\assets\\fonts",
+    "compile": "npm run clean && cross-env NODE_ENV=production babel src --ignore src/stories --out-dir dist && npm run copy-font",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "storybook": "storybook dev -p 6006",
@@ -79,6 +81,8 @@
     "gh-pages": "^6.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "rimraf": "^5.0.5",
+    "shx": "^0.3.4",
     "storybook": "^7.6.7",
     "typescript": "^4.9.5"
   },

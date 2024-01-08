@@ -19,9 +19,7 @@ If you made API chnages what are the responses before an afters?
 
 _Mandatory_
 
-- [ ] I have Reviewed Figma Designs?
-
-- [ ] I have read and understood the Story.
+- [ ] I have read and understood the Requirement.
 
 - [ ] There are no any erroneous console logs, debuggers or leftover code in my changes.
 
@@ -31,4 +29,4 @@ _Optional_
 
 - [ ] If the reviewer finds any information missing / misleading / falsy, they have all the rights to close my PR without review. 😛
 
-- [ ] Shall we kill you in case of server crashes because of your changes? 😁😂😉😉
+- [ ] I am happy to through a party in case of server crashes because of my changes? 😁😂😉😉

@@ -412,7 +412,7 @@ const ProgressBar = styled.div<{
     height: 0.4em;
     border-radius: 2.375rem;
     margin: 0 1.5em;
-    background: ${(props) => props.theme.background};
+    background: ${(props: any) => props.theme.background};
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
     ${(props) =>
       props.vertical &&
@@ -672,8 +672,8 @@ const Step: React.FC<StepProps> = ({
   const status: "progress" | "completed" | "pending" = isStepInProgress
     ? "progress"
     : isStepCompleted
-    ? "completed"
-    : "pending";
+      ? "completed"
+      : "pending";
   const CustomContent = customContent;
 
   return (

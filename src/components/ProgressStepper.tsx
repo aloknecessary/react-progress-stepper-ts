@@ -206,10 +206,14 @@ const StepStyled = styled.div<{
   border-radius: 50%;
   background: ${(props: any) => props.theme.background};
   color: ${(props: any) => props.theme.color};
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
   ${(props: any) =>
     (props.isStepInProgress || props.isStepCompleted) &&
     css`
       animation: ${animationOpacity} 1s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: scale(1.05);
     `}
 `;
 
@@ -405,16 +409,17 @@ const ProgressBar = styled.div<{
   & {
     position: relative;
     width: 100%;
-    height: 0.3em;
+    height: 0.4em;
     border-radius: 2.375rem;
-    margin: 0 1em;
+    margin: 0 1.5em;
     background: ${(props) => props.theme.background};
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
     ${(props) =>
       props.vertical &&
       css`
-        width: 0.3em;
+        width: 0.4em;
         height: 100%;
-        margin: 1em 0;
+        margin: 1.5em 0;
       `}
   }
   ${(props) =>
@@ -430,6 +435,7 @@ const ProgressBar = styled.div<{
         height: 100%;
         border-radius: 2.375rem;
         background: ${(props: any) => props.theme.fill};
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         animation: ${(props: any) =>
             props.isStepInProgress
               ? progressBarAnimation

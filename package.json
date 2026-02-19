@@ -102,10 +102,12 @@
     "react-progress-horizontal",
     "react-form-stepper",
     "react-progress-stepper",
+    "react-progress-stepper-ts",
     "react-form-stepper-vertical",
     "react-form-stepper-horizontal",
     "react-step",
     "react-vertical-stepper",
-    "stepper"
+    "stepper",
+    "stepper-ts"
   ]
 }

@@ -1,4 +1,5 @@
-import React from "react";
+import type { Meta, StoryObj } from "@storybook/react";
+import React, { CSSProperties } from "react";
 
 import {
   Step,
@@ -10,16 +11,26 @@ import {
   useStepper,
 } from "../components/ProgressStepper";
 
-export default {
+const meta: Meta = {
   title: "Examples",
 };
 
-const TemplateNoContent = (props) => {
+export default meta;
+
+interface TemplateProps {
+  numberOfSteps: number;
+  dark?: boolean;
+  vertical?: boolean;
+  numbered?: boolean;
+  theme?: any;
+}
+
+const TemplateNoContent: React.FC<TemplateProps> = (props) => {
   const { numberOfSteps } = props;
 
   const { step, incrementStep, decrementStep } = useStepper(0, numberOfSteps);
 
-  const buttonStyle = (type) => ({
+  const buttonStyle = (type: "prev" | "next"): CSSProperties => ({
     position: "fixed",
     left: "50%",
     bottom: "20px",
@@ -57,7 +68,7 @@ const TemplateNoContent = (props) => {
     >
       <Stepper {...props} step={step}>
         {[...Array(numberOfSteps)].map((e, i) => (
-          <Step></Step>
+          <Step key={i} />
         ))}
       </Stepper>
       <button onClick={decrementStep} style={buttonStyle("prev")}>
@@ -70,12 +81,12 @@ const TemplateNoContent = (props) => {
   );
 };
 
-const TemplateContent = (props) => {
+const TemplateContent: React.FC<TemplateProps> = (props) => {
   const { numberOfSteps } = props;
 
   const { step, incrementStep, decrementStep } = useStepper(0, numberOfSteps);
 
-  const buttonStyle = (type) => ({
+  const buttonStyle = (type: "prev" | "next"): CSSProperties => ({
     position: "fixed",
     left: "50%",
     bottom: "40px",
@@ -113,7 +124,7 @@ const TemplateContent = (props) => {
     >
       <Stepper {...props} step={step}>
         {[...Array(numberOfSteps)].map((e, i) => (
-          <Step>
+          <Step key={i}>
             <StepNumber />
             <StepTitle>Title</StepTitle>
             <StepStatus />
@@ -132,7 +143,7 @@ const TemplateContent = (props) => {
 };
 
 export const ProgressStepper = TemplateNoContent.bind({});
-ProgressStepper.args = {
+(ProgressStepper as StoryObj<typeof TemplateNoContent>).args = {
   numberOfSteps: 4,
   vertical: false,
   dark: false,
@@ -241,7 +252,7 @@ ProgressStepper.args = {
 
 export const ProgressStepperContent = TemplateContent.bind({});
 
-ProgressStepperContent.args = {
+(ProgressStepperContent as StoryObj<typeof TemplateContent>).args = {
   numberOfSteps: 3,
   vertical: false,
   dark: false,

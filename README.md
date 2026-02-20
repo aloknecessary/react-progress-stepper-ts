@@ -4,10 +4,11 @@
 <br/>
 </p>
 
-# <p align="center">React Progress Stepper</p>
-### <p align="center">Minimal and beautiful stepper for React.</p>
+<h1 align="center">React Progress Stepper</h1>
+<h3 align="center">Minimal and beautiful stepper for React.</h3>
+
 <p align="center">
-<a href="https://aloknecessary.github.io/react-progress-stepper-ts"><img src="https://img.shields.io/badge/LIVE DEMO-23c275?style=flat"></a>
+<a href="https://aloknecessary.github.io/react-progress-stepper-ts/demo"><img src="https://img.shields.io/badge/LIVE DEMO-23c275?style=flat"></a>
 <img src="https://img.shields.io/badge/Open%20Source-🤍-23c275">
 <img src="https://img.shields.io/github/stars/aloknecessary/react-progress-stepper-ts?color=23c275&label=Stars">
 <img src="https://img.shields.io/npm/dw/react-progress-stepper-ts?color=23c275&label=Downloads">

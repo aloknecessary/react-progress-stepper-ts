@@ -19,7 +19,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "copy-font": "shx cp -r src\\assets\\fonts\\montserrat.ttf  dist\\assets\\fonts",
+    "copy-font": "shx cp -r src/assets/fonts/montserrat.ttf  dist/assets/fonts",
     "compile": "npm run clean && tsc && npm run copy-font",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

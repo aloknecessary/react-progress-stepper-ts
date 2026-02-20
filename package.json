@@ -3,7 +3,7 @@
   "name": "react-progress-stepper-ts",
   "main": "dist/index",
   "types": "dist/index",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "private": false,
   "files": [
     "dist",
@@ -14,14 +14,13 @@
     "url": "git+https://github.com/aloknecessary/react-progress-stepper-ts.git"
   },
   "dependencies": {
-    "styled-components": "^5.3.0"
+    "styled-components": "^6.1.13"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "copy-font": "shx cp -r src\\assets\\fonts\\montserrat.ttf  dist\\assets\\fonts",
-    "copy-spec": "shx cp -r src\\*.d.ts  dist",
-    "compile": "npm run clean && cross-env NODE_ENV=production babel src --ignore src/stories --out-dir dist && npm run copy-font && npm run copy-spec",
+    "compile": "npm run clean && tsc && npm run copy-font",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "storybook": "storybook dev -p 6006",
@@ -62,47 +61,53 @@
     "styled-components": "^5"
   },
   "devDependencies": {
-    "@babel/cli": "^7.23.4",
+    "@babel/cli": "^7.25.9",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@babel/preset-env": "^7.23.7",
-    "@babel/preset-react": "^7.23.3",
-    "@babel/preset-typescript": "^7.23.3",
-    "@storybook/addon-essentials": "^7.6.7",
-    "@storybook/addon-interactions": "^7.6.7",
-    "@storybook/addon-links": "^7.6.7",
-    "@storybook/addon-onboarding": "^1.0.10",
-    "@storybook/blocks": "^7.6.7",
-    "@storybook/react": "^7.6.7",
-    "@storybook/react-webpack5": "^7.6.7",
-    "@storybook/test": "^7.6.7",
-    "@types/jest": "^29.5.11",
-    "@types/node": "^20.10.7",
-    "@types/react": "^18.2.47",
-    "@types/react-dom": "^18.2.18",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.25.9",
+    "@babel/preset-typescript": "^7.26.0",
+    "@storybook/addon-essentials": "^8.4.7",
+    "@storybook/addon-interactions": "^8.4.7",
+    "@storybook/addon-links": "^8.4.7",
+    "@storybook/blocks": "^8.4.7",
+    "@storybook/react": "^8.4.7",
+    "@storybook/react-vite": "^8.4.7",
+    "@storybook/test": "^8.4.7",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@types/styled-components": "^5.1.36",
     "cross-env": "^7.0.3",
-    "eslint-plugin-storybook": "^0.6.15",
-    "gh-pages": "^6.1.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "rimraf": "^5.0.5",
+    "eslint-plugin-storybook": "^0.11.1",
+    "gh-pages": "^6.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
     "shx": "^0.3.4",
-    "storybook": "^7.6.7",
-    "typescript": "^4.9.5"
+    "storybook": "^8.4.7",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "keywords": [
     "react",
     "react-stepper",
+    "react-stepper-component",
+    "react-stepper-horizontal",
+    "react-stepper-ts",
+    "react-progress-horizontal",
     "react-form-stepper",
     "react-progress-stepper",
+    "react-progress-stepper-ts",
     "react-form-stepper-vertical",
     "react-form-stepper-horizontal",
     "react-step",
     "react-vertical-stepper",
-    "stepper"
+    "stepper",
+    "stepper-ts"
   ]
 }

@@ -1,9 +1,9 @@
 export {
-  Stepper,
   Step,
-  useStepper,
-  StepNumber,
-  StepTitle,
-  StepStatus,
   StepDescription,
+  StepNumber,
+  StepStatus,
+  StepTitle,
+  Stepper,
+  useStepper,
 } from "./components/ProgressStepper";

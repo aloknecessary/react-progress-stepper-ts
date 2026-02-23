@@ -3,7 +3,7 @@
   "name": "react-progress-stepper-ts",
   "main": "dist/index",
   "types": "dist/index",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": false,
   "files": [
     "dist",

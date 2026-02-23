@@ -3,69 +3,139 @@ import styled, { css, keyframes } from "styled-components";
 
 import GlobalFonts from "../assets/fonts/fonts";
 
-interface ThemeColors {
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface ColorTheme {
   background: string;
   color: string;
+}
+
+interface ProgressBarTheme {
+  background: string;
   fill?: string;
 }
 
-interface ThemeContent {
+interface ContentStatusTheme {
   stepNumber: { color: string };
   title: { color: string };
   status: { background: string; color: string };
   description: { color: string };
 }
 
-interface ThemeStatus {
-  pending: ThemeColors;
-  progress: ThemeColors;
-  completed: ThemeColors;
-}
-
-interface ThemeProgressBar {
-  pending: { background: string };
-  progress: { background: string; fill: string };
-  completed: { background: string; fill: string };
-}
-
-interface ThemeConfig {
-  light: {
-    step: ThemeStatus;
-    content: Record<string, ThemeContent>;
-    progressBar: ThemeProgressBar;
+interface StepTheme {
+  step: {
+    pending: ColorTheme;
+    progress: ColorTheme;
+    completed: ColorTheme;
   };
-  dark: {
-    step: ThemeStatus;
-    content: Record<string, ThemeContent>;
-    progressBar: ThemeProgressBar;
+  content: {
+    pending: ContentStatusTheme;
+    progress: ContentStatusTheme;
+    completed: ContentStatusTheme;
+  };
+  progressBar: {
+    pending: ProgressBarTheme;
+    progress: ProgressBarTheme;
+    completed: ProgressBarTheme;
   };
 }
 
-interface CustomTheme {
-  light?: Partial<{
-    step: Partial<ThemeStatus>;
-    content: Partial<Record<string, ThemeContent>>;
-    progressBar: Partial<ThemeProgressBar>;
-  }>;
-  dark?: Partial<{
-    step: Partial<ThemeStatus>;
-    content: Partial<Record<string, ThemeContent>>;
-    progressBar: Partial<ThemeProgressBar>;
-  }>;
+interface FullTheme {
+  light: StepTheme;
+  dark: StepTheme;
 }
 
-const isObject = (item: any): item is Record<string, any> => {
+type StepStatus = "progress" | "completed" | "pending";
+
+// Props injected by Step into its direct children (StepNumber, StepTitle, etc.)
+// via cloneElement — theme here is the already-resolved ContentStatusTheme
+interface InjectedContentProps {
+  currentStep?: number;
+  isStepInProgress?: boolean;
+  isStepCompleted?: boolean;
+  isStepPending?: boolean;
+  theme?: ContentStatusTheme;
+}
+
+// Props injected by Stepper into each Step child
+interface InjectedStepProps {
+  currentStep?: number;
+  isFirstStep?: boolean;
+  isLastStep?: boolean;
+  isStepInProgress?: boolean;
+  isStepCompleted?: boolean;
+  isStepPending?: boolean;
+  vertical?: boolean;
+  numbered?: boolean;
+  theme?: StepTheme;
+}
+
+export interface StepProps extends InjectedStepProps {
+  customContent?: React.ComponentType;
+  children?: ReactNode;
+}
+
+export interface StepperProps {
+  step?: number;
+  vertical?: boolean;
+  dark?: boolean;
+  numbered?: boolean;
+  theme?: Partial<FullTheme>;
+  children: ReactElement<StepProps> | ReactElement<StepProps>[];
+}
+
+export interface StepNumberProps extends InjectedContentProps {
+  text?: string;
+}
+
+export interface StepTitleProps extends InjectedContentProps {
+  children?: ReactNode;
+}
+
+export interface StepStatusProps extends InjectedContentProps {
+  textProgress?: string;
+  textCompleted?: string;
+  textPending?: string;
+}
+
+export interface StepDescriptionProps extends InjectedContentProps {
+  children?: ReactNode;
+}
+
+export interface CheckMarkProps {
+  theme: ColorTheme;
+}
+
+export interface UseStepperReturn {
+  step: number;
+  goToStep: (stepNumber: number) => void;
+  incrementStep: () => void;
+  decrementStep: () => void;
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+
+const isObject = (item: unknown): item is Record<string, unknown> => {
   return (
-    item && typeof item === "object" && !Array.isArray(item) && item !== null
+    item !== null &&
+    item !== undefined &&
+    typeof item === "object" &&
+    !Array.isArray(item)
   );
 };
 
-const mergeDeep = (target: any, source: any): any => {
+const mergeDeep = <T extends Record<string, unknown>>(
+  target: T,
+  source: Partial<T>,
+): T => {
   if (isObject(target) && isObject(source)) {
     for (const key in source) {
       if (isObject(source[key])) {
         if (!target[key]) Object.assign(target, { [key]: {} });
-        mergeDeep(target[key], source[key]);
+        mergeDeep(
+          target[key] as Record<string, unknown>,
+          source[key] as Record<string, unknown>,
+        );
       } else {
         Object.assign(target, { [key]: source[key] });
       }
@@ -74,112 +144,60 @@ const mergeDeep = (target: any, source: any): any => {
   return target;
 };
 
+// ─── Keyframes ────────────────────────────────────────────────────────────────
+
 const animationOpacity = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 `;
 
 const completedBarAnimation = keyframes`
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
+  from { width: 0; }
+  to   { width: 100%; }
 `;
 
 const progressBarAnimation = keyframes`
-  from {
-    width: 0;
-  }
-  to {
-    width: 50%;
-  }
+  from { width: 0; }
+  to   { width: 50%; }
 `;
 
 const completedProgressBarVerticalAnimation = keyframes`
-  from {
-    height: 0;
-  }
-  to {
-    height: 100%;
-  }
+  from { height: 0; }
+  to   { height: 100%; }
 `;
 
 const progressBarVerticalAnimation = keyframes`
-  from {
-    height: 0;
-  }
-  to {
-    height: 50%;
-  }
+  from { height: 0; }
+  to   { height: 50%; }
 `;
 
 const stepAnimationOpacityText = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 `;
 
 const animateSuccessTip = keyframes`
-  0% {
-    width: 0;
-    left: 0.0625em;
-    top: 1.1875em;
-  }
-  54% {
-    width: 0;
-    left: 0.0625em;
-    top: 1.1875em;
-  }
-  70% {
-    width: 3.125em;
-    left: -0.5em;
-    top: 2.3125em;
-  }
-  84% {
-    width: 1.0625em;
-    left: 1.3125em;
-    top: 3em;
-  }
-  100% {
-    width: 1.5625em;
-    left: 0.875em;
-    top: 2.8125em;
-  }
+  0%   { width: 0;        left: 0.0625em;  top: 1.1875em; }
+  54%  { width: 0;        left: 0.0625em;  top: 1.1875em; }
+  70%  { width: 3.125em;  left: -0.5em;    top: 2.3125em; }
+  84%  { width: 1.0625em; left: 1.3125em;  top: 3em; }
+  100% { width: 1.5625em; left: 0.875em;   top: 2.8125em; }
 `;
 
 const animateSuccessLong = keyframes`
-  0% {
-    width: 0;
-    right: 2.875em;
-    top: 3.375em;
-  }
-  65% {
-    width: 0;
-    right: 2.875em;
-    top: 3.375em;
-  }
-  84% {
-    width: 3.4375em;
-    right: 0;
-    top: 2.1875em;
-  }
-  100% {
-    width: 2.9375em;
-    right: 0.5em;
-    top: 2.375em;
-  }
+  0%   { width: 0;        right: 2.875em; top: 3.375em; }
+  65%  { width: 0;        right: 2.875em; top: 3.375em; }
+  84%  { width: 3.4375em; right: 0;       top: 2.1875em; }
+  100% { width: 2.9375em; right: 0.5em;   top: 2.375em; }
 `;
 
-const StepperStyled = styled.div<{ vertical?: boolean }>`
+// ─── Styled Components ────────────────────────────────────────────────────────
+
+interface StepperStyledProps {
+  vertical?: boolean;
+}
+
+const StepperStyled = styled.div<StepperStyledProps>`
   width: 100%;
   height: 100%;
   font-size: 1em;
@@ -187,33 +205,31 @@ const StepperStyled = styled.div<{ vertical?: boolean }>`
   justify-content: center;
   align-items: center;
   font-family: "Montserrat", sans-serif;
-  ${(props: any) =>
-    props.vertical &&
+  ${({ vertical }) =>
+    vertical &&
     css`
       flex-direction: column;
     `}
 `;
 
-const StepStyled = styled.div<{
-  theme: ThemeColors;
+interface StepStyledProps {
   isStepInProgress?: boolean;
   isStepCompleted?: boolean;
-}>`
+  theme: ColorTheme;
+}
+
+const StepStyled = styled.div<StepStyledProps>`
   flex-shrink: 0;
   position: relative;
   width: 2.5em;
   height: 2.5em;
   border-radius: 50%;
-  background: ${(props: any) => props.theme.background};
-  color: ${(props: any) => props.theme.color};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  ${(props: any) =>
-    (props.isStepInProgress || props.isStepCompleted) &&
+  background: ${({ theme }) => theme.background};
+  color: ${({ theme }) => theme.color};
+  ${({ isStepInProgress, isStepCompleted }) =>
+    (isStepInProgress || isStepCompleted) &&
     css`
       animation: ${animationOpacity} 1s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      transform: scale(1.05);
     `}
 `;
 
@@ -233,23 +249,22 @@ const AnimationCheckMark = styled.div`
   font-size: 0.455em;
 `;
 
-const CheckMarkStyled = styled.div<{ theme: ThemeColors }>`
+const CheckMarkStyled = styled.div<{ theme: ColorTheme }>`
   width: 5.5em;
   height: 5.5em;
   border-radius: 50%;
   margin: 0 auto;
-  background: ${(props: any) => props.theme.background};
+  background: ${({ theme }) => theme.background};
   font-size: 1em;
 `;
 
-const SaIcon = styled.div<{ theme: ThemeColors }>`
+const SaIcon = styled.div<{ theme: ColorTheme }>`
   & {
     width: 5em;
     height: 5em;
-    border: 0.25em solid ${(props: any) => props.theme.background};
-    border-radius: 2.5em;
+    border: 0.25em solid ${({ theme }) => theme.background};
     border-radius: 50%;
-    border-color: ${(props: any) => props.theme.background};
+    border-color: ${({ theme }) => theme.background};
     margin: auto;
     padding: 0;
     position: relative;
@@ -259,12 +274,11 @@ const SaIcon = styled.div<{ theme: ThemeColors }>`
   &:before,
   &:after {
     content: "";
-    border-radius: 2.5em;
     border-radius: 50%;
     position: absolute;
     width: 3.75em;
     height: 7.5em;
-    background: ${(props) => props.theme.background};
+    background: ${({ theme }) => theme.background};
     transform: rotate(45deg);
   }
   &:before {
@@ -283,9 +297,9 @@ const SaIcon = styled.div<{ theme: ThemeColors }>`
   }
 `;
 
-const SaTip = styled.span<{ theme: ThemeColors }>`
+const SaTip = styled.span<{ theme: ColorTheme }>`
   height: 0.3125em;
-  background-color: ${(props: any) => props.theme.color};
+  background-color: ${({ theme }) => theme.color};
   display: block;
   border-radius: 0.125em;
   position: absolute;
@@ -297,9 +311,9 @@ const SaTip = styled.span<{ theme: ThemeColors }>`
   animation: ${animateSuccessTip} 0.75s;
 `;
 
-const SaLong = styled.span<{ theme: ThemeColors }>`
+const SaLong = styled.span<{ theme: ColorTheme }>`
   height: 0.3125em;
-  background-color: ${(props: any) => props.theme.color};
+  background-color: ${({ theme }) => theme.color};
   display: block;
   border-radius: 0.125em;
   position: absolute;
@@ -314,7 +328,6 @@ const SaLong = styled.span<{ theme: ThemeColors }>`
 const SaPlaceholder = styled.div`
   width: 5em;
   height: 5em;
-  border-radius: 2.5em;
   border-radius: 50%;
   box-sizing: content-box;
   position: absolute;
@@ -323,10 +336,10 @@ const SaPlaceholder = styled.div`
   z-index: 2;
 `;
 
-const SaFix = styled.div<{ theme: ThemeColors }>`
+const SaFix = styled.div<{ theme: ColorTheme }>`
   width: 0.3125em;
   height: 5.625em;
-  background-color: ${(props: any) => props.theme.background};
+  background-color: ${({ theme }) => theme.background};
   position: absolute;
   left: 1.75em;
   top: 0.5em;
@@ -334,30 +347,48 @@ const SaFix = styled.div<{ theme: ThemeColors }>`
   transform: rotate(-45deg);
 `;
 
-const Content = styled.div<{ isLastStep?: boolean; vertical?: boolean }>`
+interface ContentProps {
+  isFirstStep?: boolean;
+  isLastStep?: boolean;
+  vertical?: boolean;
+}
+
+const Content = styled.div<ContentProps>`
   position: absolute;
   top: 100%;
-  left: 0;
-  min-width: 200px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 120px;
   margin-top: 1em;
-  ${(props: any) =>
-    props.isLastStep &&
+  text-align: center;
+  ${({ isFirstStep }) =>
+    isFirstStep &&
+    css`
+      left: 0;
+      transform: none;
+      text-align: left;
+    `}
+  ${({ isLastStep }) =>
+    isLastStep &&
     css`
       left: auto;
       right: 0;
+      transform: none;
       text-align: right;
     `}
-  ${(props: any) =>
-    props.vertical &&
+  ${({ vertical }) =>
+    vertical &&
     css`
       top: 0;
       left: 100%;
+      transform: none;
+      text-align: left;
       margin: 0;
       margin-left: 1em;
     `}
-    ${(props: any) =>
-    props.vertical &&
-    props.isLastStep &&
+  ${({ vertical, isLastStep }) =>
+    vertical &&
+    isLastStep &&
     css`
       top: auto;
       right: 0;
@@ -370,14 +401,14 @@ const StepNumberStyled = styled.p<{ theme: { color: string } }>`
   margin: 0;
   margin-top: 0.75rem;
   font-size: 0.8em;
-  color: ${(props: any) => props.theme.color};
+  color: ${({ theme }) => theme.color};
 `;
 
 const StepTitleStyled = styled.p<{ theme: { color: string } }>`
   margin: 0;
   margin-top: 0.75rem;
   font-weight: bold;
-  color: ${(props: any) => props.theme.color};
+  color: ${({ theme }) => theme.color};
 `;
 
 const StepStatusStyled = styled.p<{
@@ -389,64 +420,61 @@ const StepStatusStyled = styled.p<{
   padding: 0.4rem 0.75rem;
   border-radius: 2.375rem;
   font-size: 0.8em;
-  background: ${(props: any) => props.theme.background};
-  color: ${(props: any) => props.theme.color};
+  background: ${({ theme }) => theme.background};
+  color: ${({ theme }) => theme.color};
 `;
 
 const StepDescriptionStyled = styled.p<{ theme: { color: string } }>`
   margin: 0;
   margin-top: 0.75rem;
   font-size: 0.9em;
-  color: ${(props: any) => props.theme.color};
+  color: ${({ theme }) => theme.color};
 `;
 
-const ProgressBar = styled.div<{
-  theme: ThemeProgressBar;
-  vertical?: boolean;
+interface ProgressBarProps {
   isStepInProgress?: boolean;
   isStepCompleted?: boolean;
-}>`
+  vertical?: boolean;
+  theme: ProgressBarTheme;
+}
+
+const ProgressBar = styled.div<ProgressBarProps>`
   & {
     position: relative;
     width: 100%;
-    height: 0.4em;
+    height: 0.3em;
     border-radius: 2.375rem;
-    margin: 0 1.5em;
-    background: ${(props: any) => props.theme.background};
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    ${(props) =>
-      props.vertical &&
+    margin: 0 1em;
+    background: ${({ theme }) => theme.background};
+    ${({ vertical }) =>
+      vertical &&
       css`
-        width: 0.4em;
+        width: 0.3em;
         height: 100%;
-        margin: 1.5em 0;
+        margin: 1em 0;
       `}
   }
-  ${(props) =>
-    (props.isStepInProgress || props.isStepCompleted) &&
-    css`
+  ${({ isStepInProgress, isStepCompleted }) =>
+    (isStepInProgress || isStepCompleted) &&
+    css<ProgressBarProps>`
       &:after {
         content: "";
         display: block;
         position: absolute;
         top: 0;
         left: 0;
-        width: ${(props: any) => (props.isStepInProgress ? "50%" : "100%")};
+        width: ${({ isStepInProgress }) => (isStepInProgress ? "50%" : "100%")};
         height: 100%;
         border-radius: 2.375rem;
-        background: ${(props: any) => props.theme.fill};
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        animation: ${(props: any) =>
-            props.isStepInProgress
-              ? progressBarAnimation
-              : completedBarAnimation}
+        background: ${({ theme }) => theme.fill};
+        animation: ${({ isStepInProgress }) =>
+            isStepInProgress ? progressBarAnimation : completedBarAnimation}
           1s ease;
       }
     `}
-  }
-  ${(props) =>
-    props.isStepInProgress &&
-    props.vertical &&
+  ${({ isStepInProgress, vertical }) =>
+    isStepInProgress &&
+    vertical &&
     css`
       &:after {
         width: 100%;
@@ -454,9 +482,9 @@ const ProgressBar = styled.div<{
         animation: ${progressBarVerticalAnimation} 1s ease;
       }
     `}
-  ${(props) =>
-    props.isStepCompleted &&
-    props.vertical &&
+  ${({ isStepCompleted, vertical }) =>
+    isStepCompleted &&
+    vertical &&
     css`
       &:after {
         animation: ${completedProgressBarVerticalAnimation} 1s ease;
@@ -464,18 +492,13 @@ const ProgressBar = styled.div<{
     `}
 `;
 
-interface UseStepperReturn {
-  step: number;
-  goToStep: (stepNumber: number) => void;
-  incrementStep: () => void;
-  decrementStep: () => void;
-}
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 const useStepper = (
-  defaultValue: number = 0,
+  defaultValue: number | undefined,
   numberOfSteps: number,
 ): UseStepperReturn => {
-  const [step, setStep] = useState<number>(defaultValue);
+  const [step, setStep] = useState<number>(defaultValue ?? 0);
 
   const goToStep = (stepNumber: number): void => {
     if (step !== 0 && step < numberOfSteps) setStep(stepNumber);
@@ -496,185 +519,113 @@ const useStepper = (
   return { step, goToStep, incrementStep, decrementStep };
 };
 
-interface StepNumberProps {
-  text?: string;
-  currentStep?: number;
-  theme?: { color: string };
-}
+// ─── Sub-Components ───────────────────────────────────────────────────────────
 
 const StepNumber: React.FC<StepNumberProps> = ({
   text,
-  currentStep = 1,
-  theme = { color: "#000" },
+  currentStep,
+  theme,
 }) => {
+  if (!theme) return null;
   return (
-    <StepNumberStyled theme={theme} className="step-number">{`${
-      text || "STEP"
-    } ${currentStep}`}</StepNumberStyled>
+    <StepNumberStyled theme={theme.stepNumber} className="step-number">
+      {`${text ?? "STEP"} ${currentStep}`}
+    </StepNumberStyled>
   );
 };
 
-interface StepTitleProps {
-  theme?: { color: string };
-  children: ReactNode;
-}
-
-const StepTitle: React.FC<StepTitleProps> = ({
-  theme = { color: "#000" },
-  children,
-}) => {
+const StepTitle: React.FC<StepTitleProps> = ({ theme, children }) => {
+  if (!theme) return null;
   return (
-    <StepTitleStyled theme={theme} className="title">
+    <StepTitleStyled theme={theme.title} className="title">
       {children}
     </StepTitleStyled>
   );
 };
 
-interface StepStatusProps {
-  isStepInProgress?: boolean;
-  isStepCompleted?: boolean;
-  isStepPending?: boolean;
-  textProgress?: string;
-  textCompleted?: string;
-  textPending?: string;
-  theme?: { background: string; color: string };
-}
-
 const StepStatus: React.FC<StepStatusProps> = ({
-  isStepInProgress = false,
-  isStepCompleted = false,
-  isStepPending = true,
+  isStepInProgress,
+  isStepCompleted,
+  isStepPending,
   textProgress,
   textCompleted,
   textPending,
-  theme = { background: "#f2f2f2", color: "#a1a3a7" },
+  theme,
 }) => {
-  const getText = (): string => {
-    let text: string = "";
+  if (!theme) return null;
 
-    if (isStepInProgress) {
-      text = textProgress || "In progress";
-    }
-    if (isStepCompleted) {
-      text = textCompleted || "Completed";
-    }
-    if (isStepPending) {
-      text = textPending || "Pending";
-    }
-
-    return text;
+  const getText = (): string | undefined => {
+    if (isStepInProgress) return textProgress ?? "In progress";
+    if (isStepCompleted) return textCompleted ?? "Completed";
+    if (isStepPending) return textPending ?? "Pending";
+    return undefined;
   };
 
   return (
-    <StepStatusStyled theme={theme} className="status">
+    <StepStatusStyled theme={theme.status} className="status">
       {getText()}
     </StepStatusStyled>
   );
 };
 
-interface StepDescriptionProps {
-  theme?: { color: string };
-  children: ReactNode;
-}
-
 const StepDescription: React.FC<StepDescriptionProps> = ({
-  theme = { color: "#000" },
+  theme,
   children,
 }) => {
+  if (!theme) return null;
   return (
-    <StepDescriptionStyled theme={theme} className="description">
+    <StepDescriptionStyled theme={theme.description} className="description">
       {children}
     </StepDescriptionStyled>
   );
 };
 
-interface CheckMarkProps {
-  theme?: ThemeColors;
-}
+const CheckMark: React.FC<CheckMarkProps> = ({ theme }) => (
+  <AnimationCheckMark className="animation-check-mark">
+    <CheckMarkStyled theme={theme} className="check-mark">
+      <SaIcon theme={theme} className="sa-icon">
+        <SaTip theme={theme} className="sa-line sa-tip" />
+        <SaLong theme={theme} className="sa-line sa-long" />
+        <SaPlaceholder className="sa-placeholder" />
+        <SaFix theme={theme} className="sa-fix" />
+      </SaIcon>
+    </CheckMarkStyled>
+  </AnimationCheckMark>
+);
 
-const CheckMark: React.FC<CheckMarkProps> = ({
-  theme = { background: "#23c275", color: "#ffffff" },
-}) => {
-  return (
-    <AnimationCheckMark className="animation-check-mark">
-      <CheckMarkStyled theme={theme} className="check-mark">
-        <SaIcon theme={theme} className="sa-icon">
-          <SaTip theme={theme} className="sa-line sa-tip" />
-          <SaLong theme={theme} className="sa-line sa-long" />
-          <SaPlaceholder className="sa-placeholder" />
-          <SaFix theme={theme} className="sa-fix" />
-        </SaIcon>
-      </CheckMarkStyled>
-    </AnimationCheckMark>
-  );
-};
-
-interface StepProps {
-  currentStep?: number;
-  isLastStep?: boolean;
-  isStepInProgress?: boolean;
-  isStepCompleted?: boolean;
-  isStepPending?: boolean;
-  vertical?: boolean;
-  numbered?: boolean;
-  customContent?: React.ComponentType<any>;
-  theme?: {
-    step: Record<string, ThemeColors>;
-    content: Record<string, ThemeContent>;
-    progressBar: Record<string, ThemeProgressBar>;
-  };
-  children?: ReactNode;
-}
+// ─── Step ─────────────────────────────────────────────────────────────────────
 
 const Step: React.FC<StepProps> = ({
-  currentStep = 1,
-  isLastStep = false,
-  isStepInProgress = false,
-  isStepCompleted = false,
-  isStepPending = true,
-  vertical = false,
-  numbered = true,
+  currentStep,
+  isFirstStep,
+  isLastStep,
+  isStepInProgress,
+  isStepCompleted,
+  isStepPending,
+  vertical,
+  numbered,
   customContent,
-  theme = {
-    step: {
-      pending: { background: "#ededed", color: "#a1a3a7" },
-      progress: { background: "#3c3fed", color: "#ffffff" },
-      completed: { background: "#23c275", color: "#ffffff" },
-    },
-    content: {
-      pending: {
-        stepNumber: { color: "#a1a3a7" },
-        title: { color: "#a1a3a7" },
-        status: { background: "#f2f2f2", color: "#a1a3a7" },
-        description: { color: "#a1a3a7" },
-      },
-      progress: {
-        stepNumber: { color: "#131b26" },
-        title: { color: "#131b26" },
-        status: { background: "#e7e9fd", color: "#3c3fed" },
-        description: { color: "#131b26" },
-      },
-      completed: {
-        stepNumber: { color: "#131b26" },
-        title: { color: "#131b26" },
-        status: { background: "#e9faf2", color: "#23c275" },
-        description: { color: "#131b26" },
-      },
-    },
-    progressBar: {
-      pending: { background: "#ededed" },
-      progress: { background: "#e7e9fd", fill: "#3c3fed" },
-      completed: { background: "#e9faf2", fill: "#23c275" },
-    },
-  },
+  theme,
   children,
 }) => {
-  const status: "progress" | "completed" | "pending" = isStepInProgress
+  if (!theme) return null;
+
+  const status: StepStatus = isStepInProgress
     ? "progress"
     : isStepCompleted
       ? "completed"
       : "pending";
+
   const CustomContent = customContent;
+
+  const cloneWithProps = (child: ReactElement) =>
+    cloneElement(child, {
+      currentStep,
+      isStepInProgress,
+      isStepCompleted,
+      isStepPending,
+      theme: theme.content[status],
+    } as InjectedContentProps);
 
   return (
     <>
@@ -682,10 +633,9 @@ const Step: React.FC<StepProps> = ({
         isStepInProgress={isStepInProgress}
         isStepCompleted={isStepCompleted}
         theme={theme.step[status]}
-        className={`step ${isStepInProgress ? "progress" : ""}
-      ${isStepCompleted ? "completed" : ""} ${isStepPending ? "pending" : ""}`}
+        className={`step ${isStepInProgress ? "progress" : ""} ${isStepCompleted ? "completed" : ""} ${isStepPending ? "pending" : ""}`}
       >
-        {!customContent ? (
+        {!CustomContent ? (
           <>
             {!isStepCompleted && numbered && (
               <Number className="number">{currentStep}</Number>
@@ -693,35 +643,22 @@ const Step: React.FC<StepProps> = ({
             {isStepCompleted && <CheckMark theme={theme.step.completed} />}
           </>
         ) : (
-          CustomContent && <CustomContent />
+          <CustomContent />
         )}
         {children && (
           <Content
+            isFirstStep={isFirstStep}
             isLastStep={isLastStep}
             vertical={vertical}
-            className={`content ${isLastStep ? "last" : ""}`}
+            className={`content ${isFirstStep ? "first" : ""} ${isLastStep ? "last" : ""}`}
           >
             {Array.isArray(children)
-              ? children.map((child, i) => {
-                  return (
-                    <React.Fragment key={i}>
-                      {cloneElement(child as ReactElement<any>, {
-                        currentStep: currentStep,
-                        isStepInProgress: isStepInProgress,
-                        isStepCompleted: isStepCompleted,
-                        isStepPending: isStepPending,
-                        theme: theme.content[status],
-                      })}
-                    </React.Fragment>
-                  );
-                })
-              : cloneElement(children as ReactElement<any>, {
-                  currentStep: currentStep,
-                  isStepInProgress: isStepInProgress,
-                  isStepCompleted: isStepCompleted,
-                  isStepPending: isStepPending,
-                  theme: theme.content[status],
-                })}
+              ? (children as ReactElement[]).map((child, i) => (
+                  <React.Fragment key={i}>
+                    {cloneWithProps(child)}
+                  </React.Fragment>
+                ))
+              : cloneWithProps(children as ReactElement)}
           </Content>
         )}
       </StepStyled>
@@ -731,24 +668,14 @@ const Step: React.FC<StepProps> = ({
           isStepCompleted={isStepCompleted}
           vertical={vertical}
           theme={theme.progressBar[status]}
-          className={`progress-bar ${isStepInProgress ? "progress" : ""}
-          ${isStepCompleted ? "completed" : ""} ${
-            isStepPending ? "pending" : ""
-          }`}
+          className={`progress-bar ${isStepInProgress ? "progress" : ""} ${isStepCompleted ? "completed" : ""} ${isStepPending ? "pending" : ""}`}
         />
       )}
     </>
   );
 };
 
-interface StepperProps {
-  step?: number;
-  vertical?: boolean;
-  dark?: boolean;
-  numbered?: boolean;
-  theme?: CustomTheme;
-  children?: ReactElement | ReactElement[];
-}
+// ─── Stepper ──────────────────────────────────────────────────────────────────
 
 const Stepper: React.FC<StepperProps> = ({
   step = 0,
@@ -758,21 +685,12 @@ const Stepper: React.FC<StepperProps> = ({
   theme = {},
   children,
 }) => {
-  const defaultTheme: ThemeConfig = {
+  const defaultTheme: FullTheme = {
     light: {
       step: {
-        pending: {
-          background: "#ededed",
-          color: "#a1a3a7",
-        },
-        progress: {
-          background: "#3c3fed",
-          color: "#ffffff",
-        },
-        completed: {
-          background: "#23c275",
-          color: "#ffffff",
-        },
+        pending: { background: "#ededed", color: "#a1a3a7" },
+        progress: { background: "#3c3fed", color: "#ffffff" },
+        completed: { background: "#23c275", color: "#ffffff" },
       },
       content: {
         pending: {
@@ -795,33 +713,16 @@ const Stepper: React.FC<StepperProps> = ({
         },
       },
       progressBar: {
-        pending: {
-          background: "#ededed",
-        },
-        progress: {
-          background: "#e7e9fd",
-          fill: "#3c3fed",
-        },
-        completed: {
-          background: "#e9faf2",
-          fill: "#23c275",
-        },
+        pending: { background: "#ededed" },
+        progress: { background: "#e7e9fd", fill: "#3c3fed" },
+        completed: { background: "#e9faf2", fill: "#23c275" },
       },
     },
     dark: {
       step: {
-        pending: {
-          background: "#1a1a1a",
-          color: "#767676",
-        },
-        progress: {
-          background: "#19b6fe",
-          color: "#ffffff",
-        },
-        completed: {
-          background: "#23c275",
-          color: "#ffffff",
-        },
+        pending: { background: "#1a1a1a", color: "#767676" },
+        progress: { background: "#19b6fe", color: "#ffffff" },
+        completed: { background: "#23c275", color: "#ffffff" },
       },
       content: {
         pending: {
@@ -844,58 +745,57 @@ const Stepper: React.FC<StepperProps> = ({
         },
       },
       progressBar: {
-        pending: {
-          background: "#1a1a1a",
-        },
-        progress: {
-          background: "#08374c",
-          fill: "#19b6fe",
-        },
-        completed: {
-          background: "#0b3a23",
-          fill: "#23c275",
-        },
+        pending: { background: "#1a1a1a" },
+        progress: { background: "#08374c", fill: "#19b6fe" },
+        completed: { background: "#0b3a23", fill: "#23c275" },
       },
     },
   };
+
+  const mergedTheme = mergeDeep(
+    defaultTheme as unknown as Record<string, unknown>,
+    theme as Record<string, unknown>,
+  ) as unknown as FullTheme;
+
+  const resolvedTheme = mergedTheme[dark ? "dark" : "light"];
+  const childArray = React.Children.toArray(
+    children,
+  ) as ReactElement<StepProps>[];
 
   return (
     <>
       <GlobalFonts />
       <StepperStyled
         vertical={vertical}
-        className={`stepper ${vertical ? "vertical" : ""} ${
-          dark ? "dark" : ""
-        }`}
+        className={`stepper ${vertical ? "vertical" : ""} ${dark ? "dark" : ""}`}
       >
-        {children &&
-          Array.isArray(children) &&
-          children.map((child, i) => {
-            const isLastStep = children.length - 1 === i;
-            const isStepInProgress = step === i;
-            const isStepCompleted = step > i;
+        {childArray.map((child, i) => {
+          const isLastStep = childArray.length - 1 === i;
+          const isStepInProgress = step === i;
+          const isStepCompleted = step > i;
 
-            return (
-              <React.Fragment key={i}>
-                {cloneElement(child, {
-                  currentStep: i + 1,
-                  isLastStep: isLastStep,
-                  isStepInProgress: isStepInProgress,
-                  isStepCompleted: isStepCompleted,
-                  isStepPending: !isStepInProgress && !isStepCompleted,
-                  vertical: vertical,
-                  numbered: numbered,
-                  theme: mergeDeep(defaultTheme, theme)[
-                    dark ? "dark" : "light"
-                  ],
-                })}
-              </React.Fragment>
-            );
-          })}
+          return (
+            <React.Fragment key={i}>
+              {cloneElement(child, {
+                currentStep: i + 1,
+                isFirstStep: i === 0,
+                isLastStep,
+                isStepInProgress,
+                isStepCompleted,
+                isStepPending: !isStepInProgress && !isStepCompleted,
+                vertical,
+                numbered,
+                theme: resolvedTheme,
+              })}
+            </React.Fragment>
+          );
+        })}
       </StepperStyled>
     </>
   );
 };
+
+// ─── Exports ──────────────────────────────────────────────────────────────────
 
 export {
   Step,
